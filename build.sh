@@ -73,11 +73,11 @@ winepulse=$(find /usr/lib32 -name "winepulse.drv.so" -print -quit) || exit
 if ! cmp ./wrk/dlls/winealsa.drv/winealsa.drv.so "$winealsa" ||
    ! cmp ./wrk/dlls/winepulse.drv/winepulse.drv.so "$winepulse"; then
   if ! cmp ./wrk/dlls/winealsa.drv/winealsa.drv.so "$winealsa"; then
-    cp -i -v "$winealsa" "./bak/winealsa.drv-$(date +%F)" || exit
+    cp -i -v "$winealsa" "./bak/winealsa.drv-$(date "+%F_%H-%M-%S")" || exit
     sudo cp -i -v ./wrk/dlls/winealsa.drv/winealsa.drv.so "$winealsa"  || exit
   fi
   if ! cmp ./wrk/dlls/winepulse.drv/winepulse.drv.so "$winepulse"; then
-    cp -i -v "$winepulse" "./bak/winepulse.drv-$(date +%F)" || exit
+    cp -i -v "$winepulse" "./bak/winepulse.drv-$(date "+%F_%H-%M-%S")" || exit
     sudo cp -i -v ./wrk/dlls/winepulse.drv/winepulse.drv.so "$winepulse" || exit
   fi
 else

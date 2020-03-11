@@ -77,7 +77,7 @@ if ! cmp ./wrk/dlls/winealsa.drv/winealsa.drv.so "$winealsa" ||
     sudo cp -i -v ./wrk/dlls/winealsa.drv/winealsa.drv.so "$winealsa"  || exit
   fi
   if ! cmp ./wrk/dlls/winepulse.drv/winepulse.drv.so "$winepulse"; then
-    cp -i -v "$winealsa" "./bak/winepulse.drv-$(date +%F)" || exit
+    cp -i -v "$winepulse" "./bak/winepulse.drv-$(date +%F)" || exit
     sudo cp -i -v ./wrk/dlls/winepulse.drv/winepulse.drv.so "$winepulse" || exit
   fi
 else

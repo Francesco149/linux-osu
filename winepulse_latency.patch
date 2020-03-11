@@ -1,0 +1,70 @@
+diff --git a/dlls/winepulse.drv/mmdevdrv.c.old b/dlls/winepulse.drv/mmdevdrv.c
+index 32f7acb..0a8fe2b 100644
+--- a/dlls/winepulse.drv/mmdevdrv.c.old
++++ b/dlls/winepulse.drv/mmdevdrv.c
+@@ -71,6 +71,22 @@ enum DriverPriority {
+ static const REFERENCE_TIME MinimumPeriod = 30000;
+ static const REFERENCE_TIME DefaultPeriod = 100000;
+ 
++int GetAudioEnv(char const* env, int def) {
++  char* val = getenv(env);
++  if (val) {
++    return atoi(val);
++  }
++  return def;
++}
++
++int GetMinimumPeriod() {
++  return GetAudioEnv("STAGING_AUDIO_MINIMUM_PERIOD", MinimumPeriod);
++}
++
++int GetDefaultPeriod() {
++  return GetAudioEnv("STAGING_AUDIO_DEFAULT_PERIOD", DefaultPeriod);
++}
++
+ static pa_context *pulse_ctx;
+ static pa_mainloop *pulse_ml;
+ 
+@@ -422,11 +438,11 @@ static void pulse_probe_settings(int render, WAVEFORMATEXTENSIBLE *fmt) {
+     if (length)
+         pulse_def_period[!render] = pulse_min_period[!render] = pa_bytes_to_usec(10 * length, &ss);
+ 
+-    if (pulse_min_period[!render] < MinimumPeriod)
+-        pulse_min_period[!render] = MinimumPeriod;
++    if (pulse_min_period[!render] < GetMinimumPeriod())
++        pulse_min_period[!render] = GetMinimumPeriod();
+ 
+-    if (pulse_def_period[!render] < DefaultPeriod)
+-        pulse_def_period[!render] = DefaultPeriod;
++    if (pulse_def_period[!render] < GetDefaultPeriod())
++        pulse_def_period[!render] = GetDefaultPeriod();
+ 
+     wfx->wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+     wfx->cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
+@@ -883,10 +899,10 @@ static HRESULT pulse_stream_connect(ACImpl *This, UINT32 period_bytes) {
+     dump_attr(&attr);
+     if (This->dataflow == eRender)
+         ret = pa_stream_connect_playback(This->stream, NULL, &attr,
+-        PA_STREAM_START_CORKED|PA_STREAM_START_UNMUTED|PA_STREAM_AUTO_TIMING_UPDATE|PA_STREAM_INTERPOLATE_TIMING|PA_STREAM_EARLY_REQUESTS, NULL, NULL);
++        PA_STREAM_START_CORKED|PA_STREAM_START_UNMUTED|PA_STREAM_AUTO_TIMING_UPDATE|PA_STREAM_INTERPOLATE_TIMING|PA_STREAM_EARLY_REQUESTS|PA_STREAM_ADJUST_LATENCY, NULL, NULL);
+     else
+         ret = pa_stream_connect_record(This->stream, NULL, &attr,
+-        PA_STREAM_START_CORKED|PA_STREAM_START_UNMUTED|PA_STREAM_AUTO_TIMING_UPDATE|PA_STREAM_INTERPOLATE_TIMING|PA_STREAM_EARLY_REQUESTS);
++        PA_STREAM_START_CORKED|PA_STREAM_START_UNMUTED|PA_STREAM_AUTO_TIMING_UPDATE|PA_STREAM_INTERPOLATE_TIMING|PA_STREAM_EARLY_REQUESTS|PA_STREAM_ADJUST_LATENCY);
+     if (ret < 0) {
+         WARN("Returns %i\n", ret);
+         return AUDCLNT_E_ENDPOINT_CREATE_FAILED;
+@@ -1396,6 +1412,13 @@ static HRESULT WINAPI AudioClient_Initialize(IAudioClient *iface,
+         /* Uh oh, really low latency requested.. */
+         if (duration <= 2 * period)
+             period /= 2;
++
++        char const* env = getenv("STAGING_AUDIO_DURATION");
++        if (env) {
++            int val = atoi(env);
++            duration = val;
++            printf("Set audio duration to %d (STAGING_AUDIO_DURATION).\n", val);
++        }
+     }
+     period_bytes = pa_frame_size(&This->ss) * MulDiv(period, This->ss.rate, 10000000);
+ 

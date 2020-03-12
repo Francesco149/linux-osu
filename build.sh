@@ -85,7 +85,7 @@ else
   echo "===   if you think it's broken or want to force an update"
 fi
 
-osuexe=$(find ./folder -name 'osu!.exe') || exit
+osuexe="./folder/osu\!.exe" || exit
 cat > osu << EOF
 #!/bin/sh
 

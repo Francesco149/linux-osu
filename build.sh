@@ -23,6 +23,7 @@ if ! [ -d ./wrk ]; then
   done
   ./configure
   make "-j$(nproc)" dlls/winealsa.drv dlls/winepulse.drv || exit
+  cd ..
 else
   echo "=== patched binaries already found. delete $(pwd)/wrk"
   echo "===   if you think it's broken or want to force a rebuild"

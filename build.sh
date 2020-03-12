@@ -92,6 +92,7 @@ osuexe="$(pwd)/folder/osu!.exe" || exit
 cat > osu << EOF
 #!/bin/sh
 
+export WINEDEBUG=-all
 export WINEPREFIX="$(pwd)/pfx"
 export WINEARCH=win32
 export vblank_mode=0
@@ -104,7 +105,7 @@ case "\$1" in
   kill) exec wineserver -k ;;
 esac
 
-exec env WINEDEBUG=-all wine "$(realpath "$osuexe")"
+exec nice -99 wine "$(realpath "$osuexe")"
 EOF
 
 chmod +x ./osu

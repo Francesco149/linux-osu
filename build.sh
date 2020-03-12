@@ -54,6 +54,9 @@ if ! [ -d ./pfx ]; then
   WINEDEBUG=-all wine './osu!install.exe'
   wineserver -w
   wineserver -k
+  WINEDEBUG=-all wine regedit ./dsound.reg
+  wineserver -w
+  wineserver -k
   osuexe=$(find ./pfx/drive_c -name 'osu!.exe') || exit
   osufolder="$(realpath "$(dirname "$osuexe")")"
   if [ -d ./folder ]; then
